@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 
 function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -8,11 +8,21 @@ function LoginScreen() {
   const auth = getAuth();
 
   const handleLogin = () => {
-    // Implement your login logic here
+    if (!isValidEmail(email)) {
+      console.error('Invalid email format');
+      return;
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+      })
+      .catch((error) => {
+        console.error('Login failed:', error);
+      });
   }
 
   const handleSignUp = () => {
-    // Check if the email is in a valid format
     if (!isValidEmail(email)) {
       console.error('Invalid email format');
       return;
@@ -21,15 +31,12 @@ function LoginScreen() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // Handle successful sign-up, e.g., navigate to the main screen
       })
       .catch((error) => {
         console.error('Sign-up failed:', error);
-        // Handle sign-up error, e.g., display an error message
       });
   }
 
-  // Helper function to validate email format
   function isValidEmail(email) {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     return emailRegex.test(email);
@@ -53,7 +60,7 @@ function LoginScreen() {
       />
       <Button title="Login" onPress={handleLogin} />
 
-      
+
       <Button title="Sign Up" onPress={handleSignUp} />
     </View>
   );
